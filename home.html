@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chefify</title>
+  <link rel="icon" href="img/chefify.jpg" type="image/png" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root{
+      --chef-brown: #4b2e19;
+      --peach-1: #ffd6c8; /* light */
+      --peach-2: #ffb7a1; /* darker */
+      --btn-peach: #ff9e85;
+      --btn-peach-hover: #ff6f8a;
+      --card-cream: rgba(255,230,225,0.85);
+      --card-border: #ffdccf;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+
+    body{
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--chef-brown);
+      background: url('img/wallpaper4.jpg') no-repeat center center;
+      background-size: cover;
+      position: relative;
+      min-height:100vh;
+      line-height:1.45;
+    }
+
+    /* Peach overlay (same as index/login) */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background: rgba(255,170,150,0.45);
+      z-index:0;
+      pointer-events:none;
+    }
+
+    /* Nav */
+    nav{
+      position:sticky;
+      top:0;
+      z-index:999;
+      background: transparent;
+      padding: 1.25rem 0;
+      backdrop-filter: blur(4px);
+    }
+    .nav-container{
+      max-width:1200px;
+      margin:0 auto;
+      padding: 0 1rem;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:1rem;
+      z-index:2;
+    }
+    .logo{display:flex;align-items:center;gap:18px;text-decoration:none}
+    .logo-img{height:60px;width:auto;border-radius:50%;border:2px solid #ffdde0;box-shadow:0 4px 12px rgba(100,40,20,0.35)}
+    .logo-text{font-size:1.6rem;font-weight:800;color:var(--chef-brown);letter-spacing:0.5px}
+    .nav-links{display:flex;gap:0.35rem;align-items:center}
+    .nav-links a{
+      color:var(--chef-brown);
+      text-decoration:none;
+      padding:0.45rem 0.9rem;
+      border-radius:20px;
+      font-weight:600;
+      transition:all .22s ease;
+    }
+    .nav-links a:hover{
+      color:white;
+      background: linear-gradient(45deg,var(--peach-1),var(--peach-2));
+      box-shadow: 0 6px 18px rgba(255,150,130,0.18);
+      transform:translateY(-3px);
+    }
+
+    /* Slideshow */
+    .slideshow{
+      position:relative;
+      height: 60vh;
+      min-height:420px;
+      overflow:hidden;
+      z-index:1;
+      margin-top: 0.5rem;
+    }
+    .slide{position:absolute;inset:0;opacity:0;transition:opacity .6s}
+    .slide.active{opacity:1}
+    .slide img{width:100%;height:100%;object-fit:cover;display:block}
+    .slide::after{
+      content:"";
+      position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.25),rgba(0,0,0,0.25));
+    }
+    .slide-content{
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      z-index:2;
+      text-align:center;
+      color:white;
+      max-width:900px;
+      padding:0 1rem;
+    }
+    .slide-content h2{font-size:2.6rem;margin-bottom:.5rem;text-shadow:2px 2px 6px rgba(0,0,0,0.35)}
+    .slide-content p{font-size:1.1rem;margin-bottom:1.25rem;text-shadow:1px 1px 3px rgba(0,0,0,0.32)}
+    .slide-content .cta{
+      background:var(--btn-peach);
+      color:var(--chef-brown);
+      border:none;
+      padding:0.9rem 1.9rem;
+      border-radius:30px;
+      font-weight:700;
+      cursor:pointer;
+      transition:all .18s ease;
+      text-transform:uppercase;
+      letter-spacing:0.6px;
+    }
+    .slide-content .cta:hover{
+      background:var(--btn-peach-hover);
+      color:white;
+      transform:translateY(-3px);
+      box-shadow: 0 10px 28px rgba(255,120,150,0.18);
+    }
+    .prev-btn,.next-btn{
+      position:absolute;top:50%;transform:translateY(-50%);
+      width:48px;height:48px;border-radius:50%;border:none;
+      display:flex;align-items:center;justify-content:center;font-size:1.6rem;
+      background:rgba(255,255,255,0.2);color:white;cursor:pointer;z-index:3;
+    }
+    .prev-btn{left:1.25rem}.next-btn{right:1.25rem}
+    .prev-btn:hover,.next-btn:hover{background:rgba(255,255,255,0.32)}
+
+    /* Teasers */
+    .teasers{background: rgba(255,255,255,0.85); padding:5.5rem 0; z-index:1; position:relative}
+    .teasers-grid{max-width:1200px;margin:0 auto;padding:0 1rem;display:grid;grid-template-columns:repeat(2,1fr);gap:2.25rem}
+    .teaser-card{position:relative;height:360px;border-radius:12px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,0.08)}
+    .teaser-card img{width:100%;height:100%;object-fit:cover;transition:transform .45s}
+    .teaser-card:hover img{transform:scale(1.04)}
+    .teaser-content{position:absolute;bottom:0;left:0;right:0;padding:1.5rem;background:linear-gradient(transparent,rgba(0,0,0,0.6));color:white}
+    .teaser-content h3{font-size:1.6rem;margin-bottom:.5rem}
+    .teaser-content a{color:var(--btn-peach);font-weight:700;text-decoration:none}
+    .teaser-content a:hover{color:var(--btn-peach-hover)}
+
+    /* Game */
+    .game-section{padding:3.5rem 0;text-align:center;z-index:1;position:relative}
+    .game-section h2{color:var(--chef-brown);font-size:1.8rem;margin-bottom:.6rem}
+    .game-container{max-width:720px;margin:0 auto;padding:1.5rem;background:var(--card-cream);border-radius:12px;box-shadow:0 8px 26px rgba(100,40,20,0.08)}
+    .game-stats{display:flex;justify-content:center;gap:1.25rem;margin-bottom:1rem}
+    .stat{background:rgba(255,255,255,0.85);padding:.6rem 1rem;border-radius:999px;color:var(--chef-brown);font-weight:700}
+    .game-board{display:grid;grid-template-columns:repeat(4,1fr);gap:0.9rem}
+    .card{aspect-ratio:1;position:relative;transform-style:preserve-3d;transition:transform .55s;cursor:pointer}
+    .card.flipped{transform:rotateY(180deg)}
+    .card-front,.card-back{position:absolute;inset:0;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;backface-visibility:hidden;box-shadow:0 4px 8px rgba(0,0,0,0.08)}
+    .card-front{background:linear-gradient(135deg,var(--peach-1),var(--peach-2));color:var(--chef-brown)}
+    .card-back{background:white;transform:rotateY(180deg)}
+    .matched{opacity:.25;cursor:default}
+
+    .win-message{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:1.25rem 1.5rem;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.18);z-index:100}
+    .win-message h2{color:var(--chef-brown);margin-bottom:.6rem}
+    .win-message button{background:var(--btn-peach);color:var(--chef-brown);border:none;padding:.6rem 1rem;border-radius:999px;cursor:pointer}
+    .win-message button:hover{background:var(--btn-peach-hover);color:white}
+
+    /* Footer */
+    footer{background:var(--chef-brown);color:#ffdccf;padding:2.5rem 0;margin-top:1.5rem;z-index:1;position:relative}
+    .footer-container{max-width:1200px;margin:0 auto;padding:0 1rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+    .copyright{color:var(--card-border);font-weight:600}
+    .social-links{display:flex;gap:1rem;align-items:center}
+    .social-links img{width:30px;height:30px;object-fit:cover;border-radius:6px}
+
+    /* Back to top */
+    .back-to-top{position:fixed;right:1.25rem;bottom:1.25rem;background:var(--chef-brown);color:white;padding:.55rem 1rem;border-radius:999px;text-decoration:none;font-weight:700;z-index:999}
+    .back-to-top:hover{transform:translateY(-3px);background:#5a3f2f}
+
+    /* Responsive */
+    @media (max-width:900px){
+      .teasers-grid{grid-template-columns:1fr}
+      .slide-content h2{font-size:2rem}
+      .game-board{grid-template-columns:repeat(3,1fr)}
+    }
+    @media (max-width:520px){
+      .nav-links{display:none}
+      .logo-text{font-size:1.1rem}
+      .slide-content h2{font-size:1.6rem}
+      .slide-content p{font-size:.95rem}
+      .prev-btn,.next-btn{display:none}
+      .game-board{grid-template-columns:repeat(3,1fr)}
+    }
+  </style>
+</head>
+<body>
+
+
+  <!-- Navigation -->
+  <nav aria-label="Primary navigation">
+    <div class="nav-container">
+      <a class="logo" href="index.html">
+        <img src="img/chefify.jpg" alt="Chefify logo" class="logo-img">
+        <span class="logo-text">Chefify</span>
+      </a>
+
+      <div class="nav-links" role="menu" aria-label="Main links">
+        <a href="home.html">Home</a>
+        <a href="aboutus.html" >About</a>
+        <a href="menu.html" class="active">Menu</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="locations.html" >Locations</a>
+        <a href="contactus.html" >Contact Us</a>
+        <a href="login.html">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Slideshow -->
+  <section class="slideshow" aria-roledescription="carousel">
+    <div class="slide active">
+      <img src="img/chefifybanner1.jpg" alt="Chefify - Signature dishes">
+      <div class="slide-content">
+        <h2>Welcome to Chefify</h2>
+        <p>Discover comfort food & delightful moments — every bite crafted with care.</p>
+        <button class="cta" onclick="location.href='menu.html'">View Menu</button>
+      </div>
+    </div>
+
+    <div class="slide">
+      <img src="img/chefifybanner2.jpg" alt="Our story">
+      <div class="slide-content">
+        <h2>Our Story</h2>
+        <p>From home-style recipes to artisanal desserts — learn how Chefify began.</p>
+        <button class="cta" onclick="location.href='aboutus.html'">About Us</button>
+      </div>
+    </div>
+
+    <div class="slide">
+      <img src="img/chefifybanner3.jpg" alt="Delicious menu">
+      <div class="slide-content">
+        <h2>Exquisite Menu</h2>
+        <p>Explore handcrafted dishes and comforting beverages.</p>
+        <button class="cta" onclick="location.href='menu.html'">Explore</button>
+      </div>
+    </div>
+
+    <div class="slide">
+      <img src="img/chefifybanner4.jpg" alt="Shop">
+      <div class="slide-content">
+        <h2>Shop Our Creations</h2>
+        <p>Handmade treats, gift boxes, and Chefify-exclusive merchandise.</p>
+        <button class="cta" onclick="location.href='shop.html'">Shop Now</button>
+      </div>
+    </div>
+
+    <button class="prev-btn" aria-label="Previous slide">❮</button>
+    <button class="next-btn" aria-label="Next slide">❯</button>
+  </section>
+
+  <!-- Game Section -->
+  <section class="game-section" aria-labelledby="game-title">
+    <h2 id="game-title">Chocolate Memory Game 🎮</h2>
+    <p>Take a sweet break and play our memory game — match pairs to win a small prize at Chefify.</p>
+
+    <div class="game-container" role="region" aria-label="Memory game">
+      <div class="game-stats" aria-hidden="false">
+        <div class="stat">Moves: <span id="moves">0</span></div>
+        <div class="stat">Pairs: <span id="pairs">0</span>/6</div>
+      </div>
+
+      <div class="game-board" id="gameBoard" aria-live="polite"></div>
+    </div>
+
+    <div class="win-message" id="winMessage" role="dialog" aria-modal="true">
+      <h2>Congratulations! 🎉</h2>
+      <p>Screenshot this and bring it to Chefify to claim a limited prize.</p>
+      <p>Total moves: <span id="finalMoves">0</span></p>
+      <button onclick="resetGame()">Play Again</button>
+    </div>
+  </section>
+
+  <!-- Teasers -->
+  <section class="teasers" aria-label="Highlights">
+    <div class="teasers-grid">
+      <article class="teaser-card">
+        <img src="img/dashboard.jpg" alt="Chefify Dashboard">
+        <div class="teaser-content">
+          <h3>Our Dashboard</h3>
+          <p>Peek into our gamification to earn your rewards!.</p>
+          <a href="dashboard.html">View Dashboard →</a>
+        </div>
+      </article>
+
+      <article class="teaser-card">
+        <img src="img/contact.jpg" alt="Contact us">
+        <div class="teaser-content">
+          <h3>Get in Touch</h3>
+          <p>Questions, catering requests, or feedback — we'd love to hear from you.</p>
+          <a href="contactus.html">Contact Us →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Background music (optional; replace file if needed) 
+  <audio id="background-music" autoplay loop style="display:none">
+    <source src="audio/websitemusic.mp3" type="audio/mp3">
+  </audio>-->
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-container">
+      <div class="copyright">© 2025 Chefify. All rights reserved.</div>
+
+      <div class="social-links" aria-label="Social links">
+        <a href="https://www.tiktok.com" target="_blank" rel="noopener">
+          <img src="img/tiktoklogo.png" alt="TikTok">
+        </a>
+        <a href="https://www.instagram.com" target="_blank" rel="noopener">
+          <img src="img/iglogo.png" alt="Instagram">
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <a class="back-to-top" href="#top">Go Back to Top</a>
+
+  <script>
+    // Slideshow
+    (function () {
+      let currentSlide = 0;
+      const slides = document.querySelectorAll('.slide');
+      const total = slides.length;
+      const nextBtn = document.querySelector('.next-btn');
+      const prevBtn = document.querySelector('.prev-btn');
+
+      function show(n){
+        slides.forEach(s => s.classList.remove('active'));
+        currentSlide = (n + total) % total;
+        slides[currentSlide].classList.add('active');
+      }
+
+      nextBtn.addEventListener('click', ()=> show(currentSlide + 1));
+      prevBtn.addEventListener('click', ()=> show(currentSlide - 1));
+
+      // autoplay
+      let auto = setInterval(()=> show(currentSlide + 1), 5000);
+      // pause on hover
+      document.querySelector('.slideshow').addEventListener('mouseover', ()=> clearInterval(auto));
+      document.querySelector('.slideshow').addEventListener('mouseleave', ()=> auto = setInterval(()=> show(currentSlide + 1), 5000));
+    })();
+
+    // Friendly welcome (non-blocking)
+    console.info("Welcome to Chefify — Comfort in Every Bite");
+
+    // Memory game
+    (function(){
+      const emojis = ['🍫','🍪','🎂','🧁','🍮','🍩'];
+      const gameEmojis = [...emojis, ...emojis];
+      const board = document.getElementById('gameBoard');
+      let shuffled = [];
+      let flippedCards = [];
+      let matched = 0;
+      let moves = 0;
+      let canFlip = true;
+
+      function shuffle(a){
+        for(let i=a.length-1;i>0;i--){
+          const j=Math.floor(Math.random()*(i+1));
+          [a[i],a[j]]=[a[j],a[i]];
+        }
+        return a;
+      }
+
+      function createCard(emoji, idx){
+        const el = document.createElement('div');
+        el.className = 'card';
+        el.innerHTML = `<div class="card-front">🎁</div><div class="card-back">${emoji}</div>`;
+        el.dataset.emoji = emoji;
+        el.addEventListener('click', ()=> flipCard(el));
+        return el;
+      }
+
+      function renderBoard(){
+        board.innerHTML = '';
+        shuffled = shuffle([...gameEmojis]);
+        shuffled.forEach((em,i)=> board.appendChild(createCard(em,i)));
+        matched = 0; moves = 0;
+        document.getElementById('moves').textContent = '0';
+        document.getElementById('pairs').textContent = '0';
+        document.getElementById('winMessage').style.display = 'none';
+      }
+
+      function flipCard(card){
+        if(!canFlip || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+        card.classList.add('flipped');
+        flippedCards.push(card);
+        if(flippedCards.length===2){
+          moves++;
+          document.getElementById('moves').textContent = moves;
+          canFlip=false;
+          checkMatch();
+        }
+      }
+
+      function checkMatch(){
+        const [a,b] = flippedCards;
+        if(a.dataset.emoji === b.dataset.emoji){
+          a.classList.add('matched'); b.classList.add('matched');
+          matched++;
+          document.getElementById('pairs').textContent = matched;
+          if(matched === emojis.length) showWin();
+          flippedCards = []; canFlip=true;
+        } else {
+          setTimeout(()=>{
+            a.classList.remove('flipped');
+            b.classList.remove('flipped');
+            flippedCards = [];
+            canFlip = true;
+          }, 800);
+        }
+      }
+
+      function showWin(){
+        document.getElementById('finalMoves').textContent = moves;
+        document.getElementById('winMessage').style.display = 'block';
+      }
+
+      window.resetGame = function(){
+        renderBoard();
+      }
+
+      // init
+      renderBoard();
+    })();
+
+    // lucide icons init (if any used)
+    if(window.lucide) lucide.createIcons();
+  </script>
+</body>
+</html>
